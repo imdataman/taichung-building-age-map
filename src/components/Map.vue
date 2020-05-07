@@ -16,7 +16,9 @@
         ><a href="https://twitter.com/imandylin2" target="_blank"
           ><img src="@/assets/image/Twitter_Social_Icon_Circle_Color.png"
         /></a>
-        <a href="https://github.com/imdataman/tw-gods-frontend" target="_blank"
+        <a
+          href="https://github.com/imdataman/taichung-building-age-map"
+          target="_blank"
           ><img src="@/assets/image/GitHub-Mark-32px.png"
         /></a>
       </span>
