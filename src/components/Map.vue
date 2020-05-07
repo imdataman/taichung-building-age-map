@@ -44,16 +44,16 @@
 
 <script>
 import mapboxgl from "mapbox-gl";
-import * as topojson from "topojson-client";
-import buildingRaw from "@/assets/data/building_footprint_with_age.json";
-import taichung from "@/assets/data/taichung.json";
-import taichungLabel from "@/assets/data/taichung_label.json";
-import taichungRoads from "@/assets/data/taichung_roads.json";
+// import * as topojson from "topojson-client";
+// import buildingRaw from "@/assets/data/building_footprint_with_age.json";
+// import taichung from "@/assets/data/taichung.json";
+// import taichungLabel from "@/assets/data/taichung_label.json";
+// import taichungRoads from "@/assets/data/taichung_roads.json";
 
-const building = topojson.feature(
-  buildingRaw,
-  buildingRaw.objects.building_footprint_with_age
-);
+// const building = topojson.feature(
+//   buildingRaw,
+//   buildingRaw.objects.building_footprint_with_age
+// );
 
 export default {
   name: "Map",
@@ -62,25 +62,25 @@ export default {
       mapStyle: {
         version: 8,
         name: "Blank",
-        center: [0, 0],
-        zoom: 0,
-        sources: {},
+        sources: {
+          "raster-tiles": {
+            type: "raster",
+            tiles: ["tile/{z}/{x}/{y}.png"],
+            tileSize: 256
+          }
+        },
         layers: [
           {
-            id: "background",
-            type: "background",
-            paint: {
-              "background-color": "white"
-            }
+            id: "simple-tiles",
+            type: "raster",
+            source: "raster-tiles"
           }
-        ],
-        id: "blank",
-        glyphs: "http://fonts.openmaptiles.org/{fontstack}/{range}.pbf"
+        ]
       },
       center: [120.67, 24.15],
       radius: 0.5,
       legend: {
-        breaks: [1, 60, 70, 75, 80, 85, 90, 95, 108],
+        breaks: [2, 61, 71, 76, 81, 86, 91, 96, 108],
         palette: [
           "#FDE725",
           "#9FDA3A",
@@ -102,15 +102,15 @@ export default {
         center: this.center,
         zoom: 13,
         maxZoom: 15,
-        minZoom: 11.5
+        minZoom: 12
       });
     },
     breaks() {
       const slicedBreaks = this.legend.breaks.slice(0, 8);
       return slicedBreaks.map((d, i) =>
         i === 0
-          ? `民國${d} - ${this.legend.breaks[i + 1]}年`
-          : `${d} - ${this.legend.breaks[i + 1]}`
+          ? `民國${d} - ${this.legend.breaks[i + 1] - 1}年`
+          : `${d} - ${this.legend.breaks[i + 1] - 1}`
       );
     }
   },
@@ -121,104 +121,104 @@ export default {
     // disable map rotation using touch rotation gesture
     this.map.touchZoomRotate.disableRotation();
 
-    this.map.on("load", async () => {
-      this.map.addSource("road", {
-        type: "geojson",
-        data: taichungRoads
-      });
+    // this.map.on("load", async () => {
+    //   this.map.addSource("road", {
+    //     type: "geojson",
+    //     data: taichungRoads
+    //   });
 
-      this.map.addLayer({
-        id: "roadLine",
-        source: "road",
-        type: "line",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round"
-        },
-        paint: {
-          "line-color": "#ccc",
-          "line-width": [
-            "case",
-            ["==", ["get", "highway"], "primary"],
-            1,
-            ["==", ["get", "highway"], "secondary"],
-            0.75,
-            0.5
-          ]
-        }
-      });
+    //   this.map.addLayer({
+    //     id: "roadLine",
+    //     source: "road",
+    //     type: "line",
+    //     layout: {
+    //       "line-join": "round",
+    //       "line-cap": "round"
+    //     },
+    //     paint: {
+    //       "line-color": "#ccc",
+    //       "line-width": [
+    //         "case",
+    //         ["==", ["get", "highway"], "primary"],
+    //         1,
+    //         ["==", ["get", "highway"], "secondary"],
+    //         0.75,
+    //         0.5
+    //       ]
+    //     }
+    //   });
 
-      this.map.addSource("building", {
-        type: "geojson",
-        data: building
-      });
+    //   this.map.addSource("building", {
+    //     type: "geojson",
+    //     data: building
+    //   });
 
-      this.map.addLayer({
-        id: "buildingPolygon",
-        type: "fill",
-        source: "building",
-        paint: {
-          "fill-color": [
-            "step",
-            ["get", "age"],
-            this.legend.palette[0],
-            this.legend.breaks[1],
-            this.legend.palette[1],
-            this.legend.breaks[2],
-            this.legend.palette[2],
-            this.legend.breaks[3],
-            this.legend.palette[3],
-            this.legend.breaks[4],
-            this.legend.palette[4],
-            this.legend.breaks[5],
-            this.legend.palette[5],
-            this.legend.breaks[6],
-            this.legend.palette[6],
-            this.legend.breaks[7],
-            this.legend.palette[7]
-          ]
-        }
-      });
+    //   this.map.addLayer({
+    //     id: "buildingPolygon",
+    //     type: "fill",
+    //     source: "building",
+    //     paint: {
+    //       "fill-color": [
+    //         "step",
+    //         ["get", "age"],
+    //         this.legend.palette[0],
+    //         this.legend.breaks[1],
+    //         this.legend.palette[1],
+    //         this.legend.breaks[2],
+    //         this.legend.palette[2],
+    //         this.legend.breaks[3],
+    //         this.legend.palette[3],
+    //         this.legend.breaks[4],
+    //         this.legend.palette[4],
+    //         this.legend.breaks[5],
+    //         this.legend.palette[5],
+    //         this.legend.breaks[6],
+    //         this.legend.palette[6],
+    //         this.legend.breaks[7],
+    //         this.legend.palette[7]
+    //       ]
+    //     }
+    //   });
 
-      this.map.addSource("border", {
-        type: "geojson",
-        data: taichung
-      });
+    //   this.map.addSource("border", {
+    //     type: "geojson",
+    //     data: taichung
+    //   });
 
-      this.map.addLayer({
-        id: "borderLine",
-        type: "line",
-        source: "border",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round"
-        },
-        paint: {
-          "line-color": "black",
-          "line-width": 1
-        }
-      });
+    //   this.map.addLayer({
+    //     id: "borderLine",
+    //     type: "line",
+    //     source: "border",
+    //     layout: {
+    //       "line-join": "round",
+    //       "line-cap": "round"
+    //     },
+    //     paint: {
+    //       "line-color": "black",
+    //       "line-width": 1
+    //     }
+    //   });
 
-      this.map.addSource("label", {
-        type: "geojson",
-        data: taichungLabel
-      });
+    //   this.map.addSource("label", {
+    //     type: "geojson",
+    //     data: taichungLabel
+    //   });
 
-      this.map.addLayer({
-        id: "townText",
-        source: "label",
-        type: "symbol",
-        layout: {
-          "symbol-placement": "point",
-          "text-field": "{TOWNNAME}",
-          "text-size": 16
-        },
-        paint: {
-          "text-halo-width": 2,
-          "text-halo-color": "#fff"
-        }
-      });
-    });
+    //   this.map.addLayer({
+    //     id: "townText",
+    //     source: "label",
+    //     type: "symbol",
+    //     layout: {
+    //       "symbol-placement": "point",
+    //       "text-field": "{TOWNNAME}",
+    //       "text-size": 16
+    //     },
+    //     paint: {
+    //       "text-halo-width": 2,
+    //       "text-halo-color": "#fff"
+    //     }
+    //   });
+    // });
   }
 };
 </script>
