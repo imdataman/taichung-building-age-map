@@ -1,0 +1,15 @@
+{
+"type": "FeatureCollection",
+"name": "taichung_label",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "TOWNNAME": "南區" }, "geometry": { "type": "Point", "coordinates": [ 120.664559818127827, 24.121187820027078 ] } },
+{ "type": "Feature", "properties": { "TOWNNAME": "中區" }, "geometry": { "type": "Point", "coordinates": [ 120.680588184559355, 24.141765206428758 ] } },
+{ "type": "Feature", "properties": { "TOWNNAME": "東區" }, "geometry": { "type": "Point", "coordinates": [ 120.697049253452377, 24.137337101986976 ] } },
+{ "type": "Feature", "properties": { "TOWNNAME": "西區" }, "geometry": { "type": "Point", "coordinates": [ 120.664670451281111, 24.143922984628851 ] } },
+{ "type": "Feature", "properties": { "TOWNNAME": "南屯區" }, "geometry": { "type": "Point", "coordinates": [ 120.617860090971362, 24.141587742163001 ] } },
+{ "type": "Feature", "properties": { "TOWNNAME": "北區" }, "geometry": { "type": "Point", "coordinates": [ 120.680604954787327, 24.158788466346564 ] } },
+{ "type": "Feature", "properties": { "TOWNNAME": "西屯區" }, "geometry": { "type": "Point", "coordinates": [ 120.626728649890893, 24.183081898634306 ] } },
+{ "type": "Feature", "properties": { "TOWNNAME": "北屯區" }, "geometry": { "type": "Point", "coordinates": [ 120.736139977798359, 24.184116026839018 ] } }
+]
+}

@@ -1,4 +1,6 @@
-# taichung-building-age-map
+# 台中市區屋齡地圖 Building Age Map of Downtown Taichung
+
+舊台中市八個行政區的建物落成年份地圖 A map application showing the year each building in Downtown Taichung was built
 
 ## Project setup
 ```
