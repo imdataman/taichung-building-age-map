@@ -11,7 +11,7 @@
         >
       </span>
       <span
-        >製作：<a href="https://www.facebook.com/imDataMan/" target="_blank"
+        >製作：<a href="https://linchiahsien.netlify.app/" target="_blank"
           >林佳賢</a
         ><a href="https://twitter.com/imandylin2" target="_blank"
           ><img src="@/assets/image/Twitter_Social_Icon_Circle_Color.png"
