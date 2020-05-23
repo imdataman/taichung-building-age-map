@@ -24,6 +24,18 @@
       </span>
     </div>
     <div id="map"></div>
+    <div
+      class="buildingInfo"
+      v-if="
+        Object.entries(buildingInfo).length !== 0 &&
+          buildingInfo.constructor === Object
+      "
+    >
+      <div>落成年份: {{ buildingInfo.age }}</div>
+      <div>樓層數: {{ buildingInfo.建物樓層數 }}</div>
+      <div>型態碼: {{ buildingInfo.房屋型態碼 }}</div>
+      <div>結構碼: {{ buildingInfo.房屋結構碼 }}</div>
+    </div>
     <div class="legend">
       <div class="colorWrapper">
         <div
@@ -44,16 +56,8 @@
 
 <script>
 import mapboxgl from "mapbox-gl";
-// import * as topojson from "topojson-client";
-// import buildingRaw from "@/assets/data/building_footprint_with_age.json";
-// import taichung from "@/assets/data/taichung.json";
-// import taichungLabel from "@/assets/data/taichung_label.json";
-// import taichungRoads from "@/assets/data/taichung_roads.json";
-
-// const building = topojson.feature(
-//   buildingRaw,
-//   buildingRaw.objects.building_footprint_with_age
-// );
+const Buffer = require("buffer").Buffer;
+const wkx = require("wkx");
 
 export default {
   name: "Map",
@@ -91,20 +95,11 @@ export default {
           "#46337E",
           "#440154"
         ]
-      }
+      },
+      buildingInfo: {}
     };
   },
   computed: {
-    map() {
-      return new mapboxgl.Map({
-        container: "map",
-        style: this.mapStyle,
-        center: this.center,
-        zoom: 13,
-        maxZoom: 15,
-        minZoom: 12
-      });
-    },
     breaks() {
       const slicedBreaks = this.legend.breaks.slice(0, 8);
       return slicedBreaks.map((d, i) =>
@@ -115,110 +110,65 @@ export default {
     }
   },
   mounted() {
+    const map = new mapboxgl.Map({
+      container: "map",
+      style: this.mapStyle,
+      center: this.center,
+      zoom: 13,
+      maxZoom: 15,
+      minZoom: 12
+    });
     // disable map rotation using right click + drag
-    this.map.dragRotate.disable();
+    map.dragRotate.disable();
 
     // disable map rotation using touch rotation gesture
-    this.map.touchZoomRotate.disableRotation();
+    map.touchZoomRotate.disableRotation();
 
-    // this.map.on("load", async () => {
-    //   this.map.addSource("road", {
-    //     type: "geojson",
-    //     data: taichungRoads
-    //   });
+    map.on("load", function() {
+      map.addSource("polygon", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: []
+        }
+      });
+      map.addLayer({
+        id: "selectedPolygon",
+        type: "line",
+        source: "polygon",
+        paint: {
+          "line-color": "black",
+          "line-width": 2
+        }
+      });
+    });
 
-    //   this.map.addLayer({
-    //     id: "roadLine",
-    //     source: "road",
-    //     type: "line",
-    //     layout: {
-    //       "line-join": "round",
-    //       "line-cap": "round"
-    //     },
-    //     paint: {
-    //       "line-color": "#ccc",
-    //       "line-width": [
-    //         "case",
-    //         ["==", ["get", "highway"], "primary"],
-    //         1,
-    //         ["==", ["get", "highway"], "secondary"],
-    //         0.75,
-    //         0.5
-    //       ]
-    //     }
-    //   });
-
-    //   this.map.addSource("building", {
-    //     type: "geojson",
-    //     data: building
-    //   });
-
-    //   this.map.addLayer({
-    //     id: "buildingPolygon",
-    //     type: "fill",
-    //     source: "building",
-    //     paint: {
-    //       "fill-color": [
-    //         "step",
-    //         ["get", "age"],
-    //         this.legend.palette[0],
-    //         this.legend.breaks[1],
-    //         this.legend.palette[1],
-    //         this.legend.breaks[2],
-    //         this.legend.palette[2],
-    //         this.legend.breaks[3],
-    //         this.legend.palette[3],
-    //         this.legend.breaks[4],
-    //         this.legend.palette[4],
-    //         this.legend.breaks[5],
-    //         this.legend.palette[5],
-    //         this.legend.breaks[6],
-    //         this.legend.palette[6],
-    //         this.legend.breaks[7],
-    //         this.legend.palette[7]
-    //       ]
-    //     }
-    //   });
-
-    //   this.map.addSource("border", {
-    //     type: "geojson",
-    //     data: taichung
-    //   });
-
-    //   this.map.addLayer({
-    //     id: "borderLine",
-    //     type: "line",
-    //     source: "border",
-    //     layout: {
-    //       "line-join": "round",
-    //       "line-cap": "round"
-    //     },
-    //     paint: {
-    //       "line-color": "black",
-    //       "line-width": 1
-    //     }
-    //   });
-
-    //   this.map.addSource("label", {
-    //     type: "geojson",
-    //     data: taichungLabel
-    //   });
-
-    //   this.map.addLayer({
-    //     id: "townText",
-    //     source: "label",
-    //     type: "symbol",
-    //     layout: {
-    //       "symbol-placement": "point",
-    //       "text-field": "{TOWNNAME}",
-    //       "text-size": 16
-    //     },
-    //     paint: {
-    //       "text-halo-width": 2,
-    //       "text-halo-color": "#fff"
-    //     }
-    //   });
-    // });
+    map.on("click", e => {
+      fetch(
+        `https://76kkbnkxk9.execute-api.ap-southeast-1.amazonaws.com/dev/polygon/${e.lngLat.lng}/${e.lngLat.lat}`,
+        {}
+      )
+        .then(response => {
+          return response.json();
+        })
+        .then(jsonData => {
+          if (jsonData[0]) {
+            const wkbBuffer = new Buffer(jsonData[0].geom, "hex");
+            const geometry = wkx.Geometry.parse(wkbBuffer).toGeoJSON();
+            this.buildingInfo = jsonData[0];
+            map.getSource("polygon").setData(geometry);
+          } else {
+            this.buildingInfo = {};
+            map.getSource("polygon").setData({
+              type: "FeatureCollection",
+              features: []
+            });
+          }
+        })
+        .catch(err => {
+          console.log("錯誤:", err);
+        });
+    });
   }
 };
 </script>
@@ -257,6 +207,7 @@ span {
 #map {
   width: 100vw;
   height: 100vh;
+  cursor: pointer;
 }
 .mapContainer {
   position: relative;
@@ -275,6 +226,16 @@ span {
   flex-direction: column;
   justify-content: space-around;
   padding: 5px 2px;
+}
+.buildingInfo {
+  position: absolute;
+  right: 30px;
+  bottom: 45%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px;
+  font-size: 1.25rem;
 }
 .color {
   width: 1rem;
@@ -295,8 +256,12 @@ span {
       margin: 0px;
     }
   }
-  .legend {
+  .legend,
+  .buildingInfo {
     right: 5px;
+  }
+  .buildingInfo {
+    font-size: 1rem;
   }
   .color {
     border-radius: 0px;
